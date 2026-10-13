@@ -1,0 +1,21 @@
+services:
+  web:
+    image: ${IMAGE}
+    restart: unless-stopped
+    mem_limit: 384m
+    environment:
+      # server-side requests go to the backend by its public address, same origin as the site
+      BACKEND_URL: ${BACKEND_URL}
+      SITE_URL: ${SITE_URL}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+    networks: [proxy]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.fotoflash.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.fotoflash.entrypoints=websecure
+      - traefik.http.routers.fotoflash.tls.certresolver=le
+      - traefik.http.services.fotoflash.loadbalancer.server.port=3000
+
+networks:
+  proxy:
+    external: true
